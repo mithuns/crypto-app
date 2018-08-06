@@ -1,0 +1,1 @@
+Simple starter app using electron demonstrating simple communication between main and renderer windows.
