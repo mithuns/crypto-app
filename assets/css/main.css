@@ -49,3 +49,7 @@ button {
     margin-right: 30px;
     cursor:pointer;
 }
+
+table, th, td {
+    border: 1px solid white;
+}
