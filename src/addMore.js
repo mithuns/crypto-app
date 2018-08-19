@@ -10,12 +10,15 @@ closeBtn.addEventListener('click', function (event) {
   window.close();
 })
 
-const addStockBtn = document.getElementById('addStockBtn')
+const addStockBtn = document.getElementById('addStockBtn');
 
 addStockBtn.addEventListener('click', function () {
-  
-  ipc.send('addNewStock', document.getElementById('stockName').value)
+  var stockName = document.getElementById('stockName').value
+  if(stockName)
+  {
+    ipc.send('addNewStock', stockName);
+  }
   var window = remote.getCurrentWindow();
   window.close();
-})
+},{once:true});
 

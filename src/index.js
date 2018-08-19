@@ -1,11 +1,12 @@
 const electron = require('electron')
+const {dialog} = require('electron').remote
+
 const path = require('path')
 const axios = require('axios');
-
+var mystock = require('./getStockPrice.js');
 const ipc = electron.ipcRenderer
-
-
 const BrowserWindow = electron.remote.BrowserWindow
+var stocksCollection = new Object();
 
 function addListener(elem, htmlPage){
     elem.addEventListener('click', function (event) {
@@ -22,17 +23,24 @@ function addListener(elem, htmlPage){
         win.show()
     })
 }
-ipc.on('addNewStock', function (event, arg) {
-    
-    var mainTable = document.getElementById('mainTable')
-    var newRow = mainTable.insertRow(rowCount);
-    var stockName = newRow.insertCell(0)
-    var stockSymbol =  newRow.insertCell(1)
-    var stockPrice =  newRow.insertCell(2)
-    stockName.innerHTML = arg;
-    stockSymbol.innerHTML = 'to be fetched by a service'
-    stockPrice.innerHTML = '$ to be retrieved'
-    rowCount++;
+
+ipc.on('addNewStock', async function (event, arg) {
+    var obj = await mystock.getStockPrice(arg);
+    if(obj.quotes.unmatched_symbols){
+        console.log("symbol not found");
+        dialog.showErrorBox('Alert','Symbol not found');
+    }else{
+        var mainTable = document.getElementById('mainTable');
+        var newRow = mainTable.insertRow(rowCount);
+        var stockName = newRow.insertCell(0);
+        var stockSymbol =  newRow.insertCell(1);
+        var stockPrice =  newRow.insertCell(2);
+        stocksCollection[arg+''] = newRow;
+        stockName.innerHTML = obj.quotes.quote.description;
+        stockSymbol.innerHTML = obj.quotes.quote.symbol;
+        stockPrice.innerHTML = obj.quotes.quote.ask;
+        rowCount++;
+    }    
 })
 
 var rowCount = 1
@@ -59,3 +67,18 @@ function createTable(){
     parentElement.appendChild(addMoreBtn);
     addListener(document.getElementById('addMoreBtn'),"addMore.html")
 }
+
+function updatePrices() {
+    // your function code here
+    var hours = new Date().getHours();
+    var ampm = hours >= 12 ? 'pm' : 'am';
+
+    console.log(ampm);
+    if(Object.keys(stocksCollection).length>0){
+        console.log("Do something about these");
+    }
+    console.log("this should get logged");
+    setTimeout(updatePrices, 5000);
+}
+
+updatePrices();
