@@ -71,3 +71,6 @@ typings/
 
 # Serverless directories
 .serverless
+
+# node projects
+package-lock.json
